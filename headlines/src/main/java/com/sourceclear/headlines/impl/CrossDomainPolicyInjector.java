@@ -25,50 +25,106 @@ public final class CrossDomainPolicyInjector extends AbstractHeaderLinesInjector
         if (config.isEnabled()) {
             String value = "";
 
-            // Setting site-control attribute if it enable
             SiteControlConfig siteControlConfig = config.getSiteControl();
             if (siteControlConfig != null && siteControlConfig.isEnabled() && !siteControlConfig.getPermittedCrossDomainPolicies().isEmpty()) {
                 value = String.format("%s permitted-cross-domain-policies=%s;", SiteControlConfig.HEADER_NAME,
                         HeaderBuilder.formatListAttributeValues(siteControlConfig.getPermittedCrossDomainPolicies())).trim();
             }
 
-            // Setting allow-access-from attribute if it enable
-            AllowAccessFromConfig accessDomainsConfig = config.getAllowAccessFrom();
-            if (accessDomainsConfig != null && accessDomainsConfig.isEnabled() && !accessDomainsConfig.getDomain().isEmpty()) {
-                String domain = HeaderBuilder.formatListAttributeValues(accessDomainsConfig.getDomain());
-                value = String.format("%s %s domain=%s", value, AllowAccessFromConfig.HEADER_NAME, domain);
-                if (accessDomainsConfig.getToPorts() != null && !accessDomainsConfig.getToPorts().isEmpty()) {
-                    String toPorts = HeaderBuilder.formatListAttributeValues(accessDomainsConfig.getToPorts());
-                    value = String.format("%s to-ports=%s", value, toPorts);
-                }
-                value = String.format("%s secure=%s;", value, accessDomainsConfig.isSecure());
+            String allowAccessHeader = getAllowAccessFromHeader(config.getAllowAccessFrom());
+            if (allowAccessHeader != null) {
+                value = String.format("%s %s", value, allowAccessHeader);
             }
 
-            //Setting allow-access-from-identity if if enable
-            AllowAccessFromIdentityConfig allowAccessFromIdentity = config.getAccessFromIdentity();
-            if (allowAccessFromIdentity != null && allowAccessFromIdentity.isEnabled() && allowAccessFromIdentity.getFingerprintAlgorithm() != null) {
-                value = String.format("%s %s fingerprint-algorithm='%s'", value, AllowAccessFromIdentityConfig.HEADER_NAME, allowAccessFromIdentity.getFingerprintAlgorithm());
-                if (allowAccessFromIdentity.getFingerprint() != null) {
-                    value = String.format("%s fingerprint='%s';", value, allowAccessFromIdentity.getFingerprint());
-                } else {
-                    value = String.format("%s;", value);
-                }
+            String allowAccessFromIdentityHeader = getAllowAccessFromIdentityHeader(config.getAccessFromIdentity());
+            if (allowAccessFromIdentityHeader != null) {
+                value = String.format("%s %s", value, allowAccessFromIdentityHeader);
             }
 
-            //Setting allow-http-request-headers attribute if it enable
-            AllowHttpRequestHeadersConfig accessHttpConfig = config.getAllowHttpRequestHeadersFrom();
-            if (accessHttpConfig != null && accessHttpConfig.isEnabled() && !accessHttpConfig.getDomain().isEmpty()) {
-                value = String.format("%s %s domain=%s", value, AllowHttpRequestHeadersConfig.HEADER_NAME, HeaderBuilder.formatListAttributeValues(accessHttpConfig.getDomain()));
-                if (accessHttpConfig.getHeaders()!= null && !accessHttpConfig.getHeaders().isEmpty()) {
-                    value = String.format("%s headers=%s", value, HeaderBuilder.formatListAttributeValues(accessHttpConfig.getHeaders())).trim();
-                }
-                value = String.format("%s secure=%s", value, accessHttpConfig.isSecure());
+            String allowHttpRequestHeader = getAccessHttpRequestHeader(config.getAllowHttpRequestHeadersFrom());
+            if (allowHttpRequestHeader != null) {
+                value = String.format("%s %s", value, allowHttpRequestHeader);
             }
 
             // Setting created header to response
             if (!value.isEmpty()) {
-                response.setHeader("Cross-Domain-Policy", value);
+                response.setHeader("Cross-Domain-Policy", value.trim());
             }
         }
     }
+
+    /**
+     * @param config - object with allow-access-from attributes
+     * @return string with ordered attributes of header.
+     */
+    private String getAllowAccessFromHeader(AllowAccessFromConfig config) {
+        String value = null;
+        if (config != null && config.isEnabled()) {
+            if (config.getDomain() != null && !config.getDomain().isEmpty()) {
+                String domain = HeaderBuilder.formatListAttributeValues(config.getDomain());
+                value = String.format("%s domain=%s", AllowAccessFromConfig.HEADER_NAME, domain);
+            }
+            if (config.getToPorts() != null && !config.getToPorts().isEmpty()) {
+                String toPorts = HeaderBuilder.formatListAttributeValues(config.getToPorts());
+                if (value == null) {
+                    value = AllowAccessFromConfig.HEADER_NAME;
+                }
+                value = String.format("%s to-ports=%s", value, toPorts);
+            }
+            if (value != null) {
+                value = String.format("%s secure=%s;", value, config.isSecure());
+                return value;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param config - object with allow-http-request-headers attributes
+     * @return string with ordered attributes of header.
+     */
+    private String getAllowAccessFromIdentityHeader(AllowAccessFromIdentityConfig config) {
+        String value = null;
+        if (config != null && config.isEnabled()) {
+            if (config.getFingerprintAlgorithm() != null && !config.getFingerprintAlgorithm().isEmpty()) {
+                value = String.format("%s fingerprint-algorithm='%s'", AllowAccessFromIdentityConfig.HEADER_NAME, config.getFingerprintAlgorithm());
+            }
+            if (config.getFingerprint() != null && !config.getFingerprint().isEmpty()) {
+                if (value == null) {
+                    value = AllowAccessFromIdentityConfig.HEADER_NAME;
+                }
+                value = String.format("%s fingerprint='%s'", value, config.getFingerprint());
+            }
+            if (value != null) {
+                value = String.format("%s;", value);
+                return value;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param config - object with allow-http-request-headers attributes
+     * @return string with ordered attributes of current header
+     */
+    private String getAccessHttpRequestHeader(AllowHttpRequestHeadersConfig config) {
+        String value = null;
+        if (config != null && config.isEnabled()) {
+            if (config.getDomain() != null && !config.getDomain().isEmpty()) {
+                value = String.format("%s domain=%s", AllowHttpRequestHeadersConfig.HEADER_NAME, HeaderBuilder.formatListAttributeValues(config.getDomain()));
+            }
+            if (config.getHeaders() != null && !config.getHeaders().isEmpty()) {
+                if (value == null) {
+                    value = AllowHttpRequestHeadersConfig.HEADER_NAME;
+                }
+                value = String.format("%s headers=%s", value, HeaderBuilder.formatListAttributeValues(config.getHeaders())).trim();
+            }
+            if (value != null) {
+                value = String.format("%s secure=%s", value, config.isSecure());
+                return value;
+            }
+        }
+        return null;
+    }
+
 }
