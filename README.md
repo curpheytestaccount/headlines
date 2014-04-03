@@ -18,9 +18,7 @@ Here's what our HeadLines implementation covers:
 ###8) [Cache-Control](https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9)
 ###9) [Access Control Allow Origin](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 ###10) [Cross Domain Meta Policy](http://www.adobe.com/devnet/articles/crossdomain_policy_file_spec.html)
-###11) [Server Information](https://securityheaders.com/server-information.php)
-###12) [X-Powered-By](https://securityheaders.com/x-powered-by.php)
-###13) [Content-Type](http://www.w3.org/International/O-charset)
+###11) [Content-Type](http://www.w3.org/International/O-charset)
 
 * Servlet 3.0 required.
 
@@ -90,14 +88,6 @@ others you'll want a config file.  Here is a complete config which uses the defa
       "headers": ["*"],
       "secure": true
     }
-  },
-
-  "ServerInformationConfig": {
-    "server": "nginx/1.2.1"
-  },
-
-  "XPoweredByConfig": {
-    "x-powered-by": "PHP/5.2.13"
   },
 
   "ContentTypeConfig": {
