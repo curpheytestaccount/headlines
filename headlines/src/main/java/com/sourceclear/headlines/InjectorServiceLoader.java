@@ -72,9 +72,11 @@ public final class InjectorServiceLoader {
       Logger.getLogger(getClass().getName()).info(GSON.toJson(config));
       Logger.getLogger(getClass().getName()).info("Loading custom config file.");
     } catch (JsonIOException ex) {
-      Logger.getLogger(getClass().getName()).log(Level.INFO, "No config file found, using restricted defaults", ex);
+      Logger.getLogger(getClass().getName()).log(Level.INFO, "No config file found, using restricted defaults: " + ex.getMessage());
     } catch (JsonSyntaxException ex) {
-      Logger.getLogger(getClass().getName()).log(Level.INFO, "Could not deserialze config file", ex);
+      Logger.getLogger(getClass().getName()).log(Level.INFO, "Could not deserialze config file: " + ex.getMessage());
+    } catch (Exception ex) {
+      Logger.getLogger(getClass().getName()).log(Level.INFO, "Couldn't read config file, using restricted defaults: " + ex.getMessage());
     }
     
     // Time to load our services and initialize them with a config
