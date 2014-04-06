@@ -51,6 +51,7 @@ public final class CacheControlInjector extends AbstractHeaderLinesInjector<Cach
       // using Cache-Control: No-Cache
       if(config.getValue().toLowerCase().contains(NO_CACHE)) {
 	      response.setHeader("Pragma", NO_CACHE);
+        response.setDateHeader("Expires", 0);
       }
     }
   }
