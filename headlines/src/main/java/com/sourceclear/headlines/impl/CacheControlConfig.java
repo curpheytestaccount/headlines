@@ -32,7 +32,7 @@ public final class CacheControlConfig {
     
   private volatile boolean enabled = true;
   
-  private volatile String value = "NO-CACHE";
+  private volatile String value = "no-cache";
   
   /////////////////////////////// Constructors \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\  
   
