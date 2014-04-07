@@ -61,15 +61,17 @@ public class HeadLinesFilter implements Filter {
       if (configParam != null) {
         configFileName = configParam;
       }
-      
+
       InputStream is = fc.getServletContext().getResourceAsStream("/WEB-INF/" + configFileName);
       InjectorServiceLoader loader = new InjectorServiceLoader();
       loader.load(is);
+      is.close();
+
       injectors = loader.getInjectorList();
       
     } catch (Throwable t) {
       throw new ServletException("Couldn't initialize HeadlinesFilter", t);
-    }
+    } 
   }
 
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain fc) throws IOException, ServletException {
