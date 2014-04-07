@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  */
 public final class CacheControlInjector extends AbstractHeaderLinesInjector<CacheControlConfig> {
-  private static final String NO_CACHE = "NO-CACHE";
+  private static final String NO_CACHE = "no-cache";
   
   ///////////////////////////// Class Attributes \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
   
@@ -49,8 +49,9 @@ public final class CacheControlInjector extends AbstractHeaderLinesInjector<Cach
       response.setHeader("Cache-Control", config.getValue());
       // recommended to also add Pragma: No-Cache when 
       // using Cache-Control: No-Cache
-      if(config.getValue().toUpperCase().contains(NO_CACHE)) {
-	response.setHeader("Pragma", NO_CACHE);
+      if(config.getValue().toLowerCase().contains(NO_CACHE)) {
+	      response.setHeader("Pragma", NO_CACHE);
+        response.setDateHeader("Expires", 0);
       }
     }
   }
